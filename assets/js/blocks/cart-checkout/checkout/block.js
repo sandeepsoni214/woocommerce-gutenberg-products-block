@@ -8,7 +8,7 @@ import CheckoutForm from '@woocommerce/base-components/checkout/form';
 import NoShipping from '@woocommerce/base-components/checkout/no-shipping';
 import TextInput from '@woocommerce/base-components/text-input';
 import { ShippingCountryInput } from '@woocommerce/base-components/country-input';
-import { ShippingCountyInput } from '@woocommerce/base-components/county-input';
+import { ShippingStateInput } from '@woocommerce/base-components/state-input';
 import ShippingRatesControl from '@woocommerce/base-components/shipping-rates-control';
 import InputRow from '@woocommerce/base-components/input-row';
 import { CheckboxControl } from '@wordpress/components';
@@ -19,6 +19,7 @@ import {
 	ExpressCheckoutFormControl,
 	PaymentMethods,
 } from '@woocommerce/base-components/payment-methods';
+import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies
@@ -172,7 +173,7 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 								setShippingFields( {
 									...shippingFields,
 									country: newValue,
-									county: '',
+									state: '',
 								} )
 							}
 						/>
@@ -191,17 +192,17 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 						/>
 					</InputRow>
 					<InputRow>
-						<ShippingCountyInput
+						<ShippingStateInput
 							country={ shippingFields.country }
 							label={ __(
-								'County',
+								'State / County',
 								'woo-gutenberg-products-block'
 							) }
-							value={ shippingFields.county }
+							value={ shippingFields.state }
 							onChange={ ( newValue ) =>
 								setShippingFields( {
 									...shippingFields,
-									county: newValue,
+									state: newValue,
 								} )
 							}
 						/>
@@ -210,11 +211,11 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 								'Postal code',
 								'woo-gutenberg-products-block'
 							) }
-							value={ shippingFields.postalCode }
+							value={ shippingFields.postcode }
 							onChange={ ( newValue ) =>
 								setShippingFields( {
 									...shippingFields,
-									postalCode: newValue,
+									postcode: newValue,
 								} )
 							}
 						/>
@@ -269,8 +270,8 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 												shippingFields.streetAddress,
 											address_2: shippingFields.apartment,
 											city: shippingFields.city,
-											state: shippingFields.county,
-											postcode: shippingFields.postalCode,
+											state: shippingFields.state,
+											postcode: shippingFields.postcode,
 											country: shippingFields.country,
 									  }
 									: null
@@ -286,9 +287,11 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 								} )
 							}
 							renderOption={ ( option ) => ( {
-								label: option.name,
+								label: decodeEntities( option.name ),
 								value: option.rate_id,
-								description: option.description,
+								description: decodeEntities(
+									option.description
+								),
 								secondaryLabel: (
 									<FormattedMonetaryAmount
 										currency={ getCurrencyFromPriceResponse(
@@ -297,7 +300,9 @@ const Block = ( { shippingMethods = [], isEditor = false } ) => {
 										value={ option.price }
 									/>
 								),
-								secondaryDescription: option.delivery_time,
+								secondaryDescription: decodeEntities(
+									option.delivery_time
+								),
 							} ) }
 							selected={ shippingMethod.methods }
 						/>
