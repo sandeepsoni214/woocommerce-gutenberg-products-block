@@ -14,6 +14,7 @@ import {
 	createShippingZones,
 	createBlockPages,
 	enablePaymentGateways,
+	createProductAttributes,
 } from '../fixtures/fixture-loaders';
 
 module.exports = async ( globalConfig ) => {
@@ -27,21 +28,30 @@ module.exports = async ( globalConfig ) => {
 		 * to server data so we ignore the values here.
 		 */
 		const results = await Promise.all( [
-			setupSettings(),
 			createTaxes(),
 			createCoupons(),
 			createProducts(),
 			createShippingZones(),
 			createBlockPages(),
+			createProductAttributes(),
 			enablePaymentGateways(),
+			setupSettings(),
 		] );
-		const [ , taxes, coupons, products, shippingZones, pages ] = results;
+		const [
+			taxes,
+			coupons,
+			products,
+			shippingZones,
+			pages,
+			attributes,
+		] = results;
 		global.fixtureData = {
 			taxes,
 			coupons,
 			products,
 			shippingZones,
 			pages,
+			attributes
 		};
 	} catch ( e ) {
 		console.log( e );
