@@ -11,6 +11,7 @@ import {
 	createTaxes,
 	createCoupons,
 	createProducts,
+	createReviews,
 	createShippingZones,
 	createBlockPages,
 	enablePaymentGateways,
@@ -21,30 +22,40 @@ module.exports = async ( globalConfig ) => {
 	// we need to load puppeteer global setup here.
 	await setupPuppeteer( globalConfig );
 
+
 	try {
 		/**
 		 * Promise.all will return an array of all promises resolved values.
 		 * Some functions like setupSettings and enablePaymentGateways resolve
 		 * to server data so we ignore the values here.
 		 */
-		const results = await Promise.all( [
+		const results = await Promise.allSettled( [
+			createProducts(),
 			createTaxes(),
 			createCoupons(),
-			createProducts(),
 			createShippingZones(),
 			createBlockPages(),
 			createProductAttributes(),
 			enablePaymentGateways(),
 			setupSettings(),
 		] );
-		const [
-			taxes,
-			coupons,
-			products,
-			shippingZones,
-			pages,
-			attributes,
-		] = results;
+
+		const { value: _products } = results[ 0 ];
+
+			/**
+			 * Reviews depends a product.
+			 */
+			 await createReviews( _products[ 0 ] );
+			 const [
+				products,
+				taxes,
+				coupons,
+				shippingZones,
+				pages,
+				attributes,
+			] = results
+				.filter( ( { status } ) => status === 'fulfilled' )
+				.map( ( { value } ) => value );
 		global.fixtureData = {
 			taxes,
 			coupons,
