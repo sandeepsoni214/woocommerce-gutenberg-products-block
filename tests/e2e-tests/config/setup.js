@@ -22,7 +22,6 @@ module.exports = async ( globalConfig ) => {
 	// we need to load puppeteer global setup here.
 	await setupPuppeteer( globalConfig );
 
-
 	try {
 		/**
 		 * Promise.all will return an array of all promises resolved values.
@@ -42,27 +41,27 @@ module.exports = async ( globalConfig ) => {
 
 		const { value: _products } = results[ 0 ];
 
-			/**
-			 * Reviews depends a product.
-			 */
-			 await createReviews( _products[ 0 ] );
-			 const [
-				products,
-				taxes,
-				coupons,
-				shippingZones,
-				pages,
-				attributes,
-			] = results
-				.filter( ( { status } ) => status === 'fulfilled' )
-				.map( ( { value } ) => value );
+		/**
+		 * Reviews depends a product.
+		 */
+		await createReviews( _products[ 0 ] );
+		const [
+			products,
+			taxes,
+			coupons,
+			shippingZones,
+			pages,
+			attributes,
+		] = results
+			.filter( ( { status } ) => status === 'fulfilled' )
+			.map( ( { value } ) => value );
 		global.fixtureData = {
 			taxes,
 			coupons,
 			products,
 			shippingZones,
 			pages,
-			attributes
+			attributes,
 		};
 	} catch ( e ) {
 		console.log( e );
